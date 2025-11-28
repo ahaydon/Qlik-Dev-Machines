@@ -1,0 +1,9 @@
+hyperv_vm:
+  hosts:
+    central:
+      image: win-2022\0.1\2022-vm
+
+sense_nodes:
+  hosts:
+    central:
+      release_name: November 2025 Initial Release

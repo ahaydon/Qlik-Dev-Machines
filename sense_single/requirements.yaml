@@ -1,0 +1,14 @@
+---
+collections:
+  - name: ahaydon.hyperv
+    type: git
+    version: main
+    source: https://github.com/ahaydon/ansible-hyperv-collection
+
+  - name: qlik.sense
+    type: git
+    version: main
+    source: https://github.com/QlikProfessionalServices/ansible-qliksense-collection
+
+  - name: community.general
+  - name: community.windows

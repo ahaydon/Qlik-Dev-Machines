@@ -1,0 +1,16 @@
+hyperv_vm:
+  vars:
+    ansible_connection: ahaydon.windows.wsl2
+    ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
+    ansible_password: Qlik1234
+    hyperv_nameserver: 192.168.1.1
+
+sense_nodes:
+  vars:
+    accept_eula: yes
+    qlik_service_password: Qlik1234
+    db_password: Qlik1234
+    db_user_password: Qlik1234
+    site_license_key: 
+    site_license_name: 
+    site_license_org: 
