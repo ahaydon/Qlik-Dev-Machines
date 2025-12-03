@@ -38,10 +38,9 @@ The global yaml file can be used to set default values to avoid the need to spec
 
 ## Deploying scenarios
 
-To deploy a scenario requires running the setup and up commands in the scenario directory with the following.
+To deploy a scenario requires running the up command in the scenario directory with the following.
 
 ```sh
 cd sense_single
-just setup
 just up
 ```

@@ -22,6 +22,7 @@ create NAME:
 # Deploy environment
 [no-cd]
 up *args:
+    {{ if path_exists(join(env("PWD"), "ansible_collections")) != "true" { 'just setup' } else { '' } }}
     uv run ansible-playbook -i ../global.yaml -i inventory.yaml ahaydon.hyperv.up {{args}}
 
 # Stop running instances
@@ -33,3 +34,6 @@ stop *args:
 [no-cd]
 down *args:
     uv run ansible-playbook -i ../global.yaml -i inventory.yaml ahaydon.hyperv.down {{args}}
+
+vmconnect VMNAME:
+    vmconnect.exe localhost {{file_name(env("PWD"))+"-"+VMNAME}} &
