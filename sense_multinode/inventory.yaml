@@ -1,0 +1,24 @@
+hyperv_vm:
+  hosts:
+    central:
+    rim1:
+    rim2:
+  vars:
+    image: win-2022\0.1\2022-vm
+
+sense_nodes:
+  children:
+    central_node:
+      hosts:
+        central:
+    rim_nodes:
+      hosts:
+        rim1:
+          node_failover_candidate: true
+        rim2:
+          node_engine_enabled: true
+          node_proxy_enabled: true
+          node_printing_enabled: true
+  vars:
+    release_name: November 2025 Initial Release
+    patch_name: November 2025 Patch 1
