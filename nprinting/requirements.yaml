@@ -1,0 +1,14 @@
+---
+collections:
+  - name: ahaydon.hyperv
+    type: git
+    version: main
+    source: https://github.com/ahaydon/ansible-hyperv-collection
+
+  - name: qlik.nprinting
+    type: git
+    version: main
+    source: https://github.com/QlikProfessionalServices/ansible-qliknprint-collection
+
+  - name: community.general
+  - name: community.windows

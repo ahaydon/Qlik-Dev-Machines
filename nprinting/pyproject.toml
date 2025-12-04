@@ -1,0 +1,8 @@
+[project]
+name = "nprinting"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "ansible-core>=2.19.2",
+    "netaddr>=1.3.0",
+]

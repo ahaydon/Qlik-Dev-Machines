@@ -1,0 +1,9 @@
+hyperv_vm:
+  hosts:
+    npserver:
+      image: win-2022\0.1\2022-vm
+
+nprinting_server:
+  hosts:
+    npserver:
+      release_name: February 2025 SR3

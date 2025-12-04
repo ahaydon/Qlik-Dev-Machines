@@ -1,0 +1,3 @@
+---
+- name: Deploy single Qlik NPrinting server
+  ansible.builtin.import_playbook: qlik.nprinting.server_engine
