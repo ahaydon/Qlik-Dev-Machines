@@ -1,0 +1,18 @@
+hyperv_vm:
+  hosts:
+    central:
+      image: win-2022\0.1\2022-vm
+
+sense_nodes:
+  children:
+    central_node:
+      hosts:
+        central:
+          release_name: November 2025 Initial Release
+          db_login_host: "{{ hostvars['localhost']['ansible_facts']['default_ipv4']['address'] }}"
+          db_login_user: postgres
+          db_login_password: postgres
+          db_host: "{{ db_login_host }}"
+          db_port: 5432
+          create_cluster: yes
+          install_local_db: no

@@ -1,0 +1,145 @@
+- name: Deploy shared persistence services
+  hosts: localhost
+
+  vars:
+    deployment: "{{ lookup('ansible.builtin.env', 'PWD') | basename }}"
+
+  tasks:
+    - name: Create storage volumes
+      containers.podman.podman_volume:
+        state: present
+        name: "{{ deployment }}-{{ item }}"
+        label:
+          deployment: "{{ deployment }}"
+      loop:
+        - pgdata
+        - qlikshare
+
+    - name: Create PostgreSQL container
+      containers.podman.podman_container:
+        name: "{{ deployment }}-postgres"
+        image: docker.io/library/postgres
+        restart_policy: always
+        label:
+          deployment: "{{ deployment }}"
+        env:
+          POSTGRES_PASSWORD: postgres
+        volumes:
+          - "{{ deployment }}-pgdata:/var/lib/postgresql"
+        ports:
+          - 5432:5432
+
+    - name: Create Samba container
+      containers.podman.podman_container:
+        name: "{{ deployment }}-samba"
+        image: ghcr.io/servercontainers/samba
+        restart_policy: always
+        label:
+          deployment: "{{ deployment }}"
+        ports:
+          - 1139:139
+          - 1445:445
+        env: "{{ env_vars | from_yaml }}"
+
+        volumes:
+          - qlikshare:/shares/qlikshare
+      vars:
+        env_vars: |
+          SAMBA_CONF_LOG_LEVEL: 3
+          SAMBA_GLOBAL_CONFIG_protocol: SMB3
+
+          WSDD2_DISABLE: 1
+          AVAHI_DISABLE: 1
+          NETBIOS_DISABLE: 1
+
+          GROUP_qlik: 1501
+
+          ACCOUNT_{{ ansible_facts['user_id'] }}: Qlik1234
+          UID_{{ ansible_facts['user_id'] }}: 1004
+          GROUPS_{{ ansible_facts['user_id'] }}: qlik
+
+          ACCOUNT_qservice: Qlik1234
+          UID_qservice: 1003
+          GROUPS_qservice: qlik
+
+          SAMBA_VOLUME_CONFIG_qlik_share: |
+            [QlikShare]
+              path=/shares/qlikshare
+              valid users = @qlik
+              guest ok = no
+              read only = no
+              browseable = yes
+
+    - name: Set share mount permissions
+      containers.podman.podman_container_exec:
+        name: "{{ deployment }}-samba"
+        command: >
+          sh -c "[[ \"$(stat -c %a qlikshare)\" =~ \"777\" ]]
+          && exit 0
+          || (chmod 777 qlikshare; exit 2)"
+        workdir: /shares
+      register: chmod
+      changed_when: chmod.rc == 2
+      failed_when: chmod.rc == 1
+
+    - name: Forward ports for Samba
+      ansible.builtin.iptables:
+        table: nat
+        chain: PREROUTING
+        in_interface: eth0
+        protocol: tcp
+        match: tcp
+        destination_port: "{{ item.dport }}"
+        jump: REDIRECT
+        to_ports: "{{ item.toport }}"
+        comment: Redirect SMB and RPC traffic
+      become: yes
+      loop:
+        - dport: 139
+          toport: 1139
+        - dport: 445
+          toport: 1445
+
+
+- name: Create repository databases and roles
+  hosts: central
+
+  roles:
+    - role: qlik.sense.repository_database
+      delegate_to: localhost
+      db_host: "{{ hostvars['localhost']['ansible_facts']['default_ipv4']['address'] }}"
+      db_password: "{{ db_login_password }}"
+
+
+- name: Prepare nodes
+  hosts: sense_nodes
+
+  roles:
+    - role: qlik.sense.download
+    - role: qlik.sense.win_firewall
+
+  tasks:
+    - name: Create Qlik Sense service account
+      ansible.windows.win_user:
+        name: qservice
+        password: "{{ qlik_service_password }}"
+        password_never_expires: yes
+        user_cannot_change_password: yes
+        groups:
+          - Administrators
+        groups_action: add
+
+
+- name: Deploy central node
+  hosts: central_node
+
+  vars:
+    smb_host: "{{ hostvars['localhost']['ansible_facts']['default_ipv4']['address'] }}"
+
+  roles:
+    - role: qlik.sense.setup
+      root_dir: \\{{ smb_host }}\QlikShare
+      user_with_domain: '{{ ansible_facts["netbios_name"] }}\qservice'
+      user_password: "{{ qlik_service_password }}"
+
+    - role: qlik.sense.site
