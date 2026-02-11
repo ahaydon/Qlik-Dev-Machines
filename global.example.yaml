@@ -14,3 +14,22 @@ sense_nodes:
     site_license_key: 
     site_license_name: 
     site_license_org: 
+
+nprinting_server:
+  vars:
+    accept_eula: yes
+    service_username: np-service
+    service_password: Qlik1234
+    admin_username: "{{ lookup('ansible.builtin.env', 'USER') }}"
+    admin_password: Qlik1234
+    database_password: Qlik1234
+    admin_email: "{{ lookup('ansible.builtin.env', 'USER') }}@qlik.com"
+    engine_certs_password: Qlik1234
+    server_hostname: "{{ ansible_facts.hostname | default(ansible_host) }}"
+    settings_license_key:
+
+qlikview_server:
+  vars:
+    setup_username: "{{ ansible_facts['netbios_name'] }}\\qvservice"
+    setup_password: Qlik1234
+    qlikview_slk:
