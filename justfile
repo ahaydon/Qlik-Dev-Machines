@@ -1,5 +1,5 @@
 distro := `grep -oP '^ID=\K.*' /etc/os-release`
-export ANSIBLE_CONFIG := "${PWD}/../ansible.cfg"
+export ANSIBLE_CONFIG := join(justfile_directory(), "ansible.cfg")
 
 _default:
     @just --list
@@ -16,24 +16,25 @@ _setup_arch:
 _setup_ubuntu:
     snap list astral-uv >/dev/null || (sudo snap refresh && sudo snap install --classic astral-uv)
 
-create NAME:
-    mkdir {{NAME}}
+create NAME SCENARIO:
+    mkdir -p deployments
+    cp -r scenarios/{{SCENARIO}} deployments/{{NAME}}
 
 # Deploy environment
 [no-cd]
 up *args:
     {{ if path_exists(join(env("PWD"), "ansible_collections")) != "true" { 'just setup' } else { '' } }}
-    uv run ansible-playbook -i ../global.yaml -i inventory.yaml ahaydon.hyperv.up {{args}}
+    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.up {{args}}
 
 # Stop running instances
 [no-cd]
 stop *args:
-    uv run ansible-playbook -i ../global.yaml -i inventory.yaml ahaydon.hyperv.stop {{args}}
+    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.stop {{args}}
 
 # Destroy environment
 [no-cd]
 down *args:
-    uv run ansible-playbook -i ../global.yaml -i inventory.yaml ahaydon.hyperv.down {{args}}
+    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.down {{args}}
 
 vmconnect VMNAME:
     vmconnect.exe localhost {{file_name(env("PWD"))+"-"+VMNAME}} &
