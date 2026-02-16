@@ -1,0 +1,10 @@
+hyperv_vm:
+  hosts:
+    qv1:
+  vars:
+    image: win-2022\0.1\2022-vm
+
+qlikview_server:
+  hosts:
+    qv1:
+      release_name: September 2025 SR1

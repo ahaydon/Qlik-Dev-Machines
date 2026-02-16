@@ -1,0 +1,21 @@
+---
+- name: Install QlikView Server
+  hosts: qlikview_server
+
+  pre_tasks:
+    - name: Create QlikView service account
+      ansible.windows.win_user:
+        name: qvservice
+        password: "Qlik1234"
+        password_never_expires: yes
+        user_cannot_change_password: yes
+        groups:
+          - Administrators
+        groups_action: add
+
+  roles:
+    - role: qlik.qlikview.download
+    - role: qlik.qlikview.setup
+    - role: qlik.qlikview.management
+      tags: config
+    - role: qlik.qlikview.win_firewall
