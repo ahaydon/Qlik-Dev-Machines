@@ -1,0 +1,30 @@
+qmicloud:
+  hosts:
+    azqmi-qs-np:
+      ansible_connection: ansible.builtin.psrp
+      ansible_psrp_protocol: http
+      ansible_host: 
+      ansible_user: qmi
+      ansible_password: 
+
+nprinting_server:
+  hosts:
+    azqmi-qs-np:
+  vars:
+    # Feb 2021 must be upgraded to Feb 2025 SR1 or earlier before upgrading to later release
+    np_release_name: February 2025 SR1
+    accept_eula: yes
+    service_username: nservice
+    service_password: Qlik1234
+
+sense_nodes:
+  children:
+    central_node:
+      hosts:
+        azqmi-qs-np:
+  vars:
+    qs_release_name: November 2025 Initial Release
+    patch_name: November 2025 Patch 3
+    accept_eula: yes
+    qlik_service_password: Qlik1234
+    db_password: Qlik1234

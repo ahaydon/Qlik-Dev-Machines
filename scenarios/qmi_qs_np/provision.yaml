@@ -1,0 +1,10 @@
+---
+- name: Upgrade Qlik NPrinting server and Engine
+  ansible.builtin.import_playbook: qlik.nprinting.upgrade
+  vars:
+    release_name: "{{ np_release_name }}"
+
+- name: Upgrade Qlik Sense Enterprise
+  ansible.builtin.import_playbook: qlik.sense.upgrade
+  vars:
+    release_name: "{{ qs_release_name }}"
