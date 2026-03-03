@@ -3,6 +3,7 @@
 ## Requirements
 
 - **HyperV** hypervisor for Windows
+- **WSL** Windows Subsystem for Linux
 - **Just** command runner
 
 Just command runner is required and can be installed using the commands below:
@@ -38,9 +39,17 @@ The global yaml file can be used to set default values to avoid the need to spec
 
 ## Deploying scenarios
 
-To deploy a scenario requires running the up command in the scenario directory with the following.
+To deploy a scenario requires running the create command and supplying a name for the deployment and a scenario template to use, after creating the up command can be run in the deployment directory to create and start the host instances.
 
 ```sh
-cd sense_single
+# Create my_test_env deployment from the sense_single scenario template
+just create my_test_env sense_single
+
+cd deployments/my_test_env
+
+# Bring up the deployment by creating and starting host instances
 just up
 ```
+
+> [!TIP]
+> Omitting the scenario from the `just create` command will prompt for a scenario to use. This requires the `fzf` command to be installed on your system.
