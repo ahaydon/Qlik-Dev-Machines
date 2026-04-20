@@ -1,3 +1,5 @@
+deployments_dir := join(justfile_directory(), "deployments")
+deployment_name := replace_regex(replace_regex(invocation_directory(), deployments_dir + "/([^/]+)", "$1"), "/.*", "")
 distro := `grep -oP '^ID=\K.*' /etc/os-release`
 export ANSIBLE_CONFIG := join(justfile_directory(), "ansible.cfg")
 
@@ -36,10 +38,7 @@ create NAME SCENARIO="":
     cp -r scenarios/$scenario deployments/{{NAME}}
 
 _deployment_cmd:
-    {{ if parent_directory(invocation_directory()) != join(justfile_directory(), "deployments") {
-        error("Command must be run from a deployment.")
-    } else {""}
-    }}
+    {{ if deployment_name == "" { error("Command must be run from a deployment.") } else {""} }}
 
 # Create and start deployment
 [group('deployments')]
