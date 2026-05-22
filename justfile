@@ -10,7 +10,7 @@ _default:
 [no-cd]
 setup:
     @just _setup_{{distro}}
-    uv run ansible-galaxy collection install -p ansible_collections -r requirements.yaml --force
+    uv run -m ansible galaxy collection install -p ansible_collections -r requirements.yaml --force
 
 _setup_arch:
     pacman -Q uv || sudo pacman -Sy --noconfirm --color=always uv
@@ -45,19 +45,19 @@ _deployment_cmd:
 [no-cd]
 up *args: _deployment_cmd
     {{ if path_exists(join(env("PWD"), "ansible_collections")) != "true" { 'just setup' } else { '' } }}
-    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.up {{args}}
+    uv run -m ansible playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.up {{args}}
 
 # Stop running instances
 [group('deployments')]
 [no-cd]
 stop *args: _deployment_cmd
-    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.stop {{args}}
+    uv run -m ansible playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.stop {{args}}
 
 # Destroy deployment
 [group('deployments')]
 [no-cd]
 down *args: _deployment_cmd
-    uv run ansible-playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.down {{args}}
+    uv run -m ansible playbook -i {{justfile_directory()}}/global.yaml -i inventory.yaml ahaydon.hyperv.down {{args}}
 
 # Connect to the virtual machine console
 [group('deployments')]
