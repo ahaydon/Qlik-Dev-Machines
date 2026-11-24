@@ -1,7 +1,7 @@
 */.venv/
 **/ansible_collections/
 */uv.lock
-deployments/*
+deployments/*/
 global.yaml
 .ansible
 .vscode
